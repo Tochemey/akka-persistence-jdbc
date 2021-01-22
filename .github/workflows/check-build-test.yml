@@ -55,6 +55,7 @@ jobs:
         run: |-
           git fetch origin pull/${{ github.event.pull_request.number }}/merge:scratch
           git checkout scratch
+
       - name: Setup Scala with JDK 8
         uses: olafurpg/setup-scala@v10
 
@@ -83,6 +84,7 @@ jobs:
         run: |-
           git fetch origin pull/${{ github.event.pull_request.number }}/merge:scratch
           git checkout scratch
+
       - name: Setup Scala with JDK 8
         uses: olafurpg/setup-scala@v10
 
@@ -111,6 +113,7 @@ jobs:
         run: |-
           git fetch origin pull/${{ github.event.pull_request.number }}/merge:scratch
           git checkout scratch
+
       - name: Setup Scala with JDK 11
         uses: olafurpg/setup-scala@v10
         with:
@@ -141,6 +144,7 @@ jobs:
         run: |-
           git fetch origin pull/${{ github.event.pull_request.number }}/merge:scratch
           git checkout scratch
+
       - name: Setup Scala with JDK 11
         uses: olafurpg/setup-scala@v10
         with:
@@ -154,4 +158,140 @@ jobs:
 
       - name: Print logs on failure
         if: ${{ failure() }}
-        run: find . -name "*.log" -exec ./scripts/cat-log.sh {} \;        
+        run: find . -name "*.log" -exec ./scripts/cat-log.sh {} \;   
+
+  it-test-mysql-java11-scala213:
+    name: MySQL integration tests with Scala 2.13 and AdoptOpenJDK 11
+    runs-on: ubuntu-18.04
+    needs: check
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Checkout GitHub merge
+        if: github.event.pull_request
+        run: |-
+          git fetch origin pull/${{ github.event.pull_request.number }}/merge:scratch
+          git checkout scratch
+          
+      - name: Setup Scala with JDK 11
+        uses: olafurpg/setup-scala@v10
+        with:
+          java-version: adopt@1.11.0-9
+
+      - name: Cache Coursier cache
+        uses: coursier/cache-action@v5
+
+      - name: Start docker
+        run: ./scripts/launch-mysql.sh
+
+      - name: Run tests with Scala 2.13 and AdoptOpenJDK 11
+        run: sbt "++2.13.4 It/testOnly akka.persistence.jdbc.integration.MySQL*" -J-XX:+UnlockExperimentalVMOptions -J-XX:+UseJVMCICompiler
+
+      - name: Print logs on failure
+        if: ${{ failure() }}
+        run: find . -name "*.log" -exec ./scripts/cat-log.sh {} \;                
+
+  it-test-postgres-java11-scala213:
+    name: Postgres integration tests with Scala 2.13 and AdoptOpenJDK 11
+    runs-on: ubuntu-18.04
+    needs: check
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Checkout GitHub merge
+        if: github.event.pull_request
+        run: |-
+          git fetch origin pull/${{ github.event.pull_request.number }}/merge:scratch
+          git checkout scratch
+          
+      - name: Setup Scala with JDK 11
+        uses: olafurpg/setup-scala@v10
+        with:
+          java-version: adopt@1.11.0-9
+
+      - name: Cache Coursier cache
+        uses: coursier/cache-action@v5
+
+      - name: Start docker
+        run: ./scripts/launch-postgres.sh
+
+      - name: Run tests with Scala 2.13 and AdoptOpenJDK 11
+        run: sbt "++2.13.4 It/testOnly akka.persistence.jdbc.integration.Postgres*" -J-XX:+UnlockExperimentalVMOptions -J-XX:+UseJVMCICompiler
+
+      - name: Print logs on failure
+        if: ${{ failure() }}
+        run: find . -name "*.log" -exec ./scripts/cat-log.sh {} \;                        
+
+  it-test-oracle-java11-scala213:
+    name: Oracle integration tests with Scala 2.13 and AdoptOpenJDK 11
+    runs-on: ubuntu-18.04
+    needs: check
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Checkout GitHub merge
+        if: github.event.pull_request
+        run: |-
+          git fetch origin pull/${{ github.event.pull_request.number }}/merge:scratch
+          git checkout scratch
+          
+      - name: Setup Scala with JDK 11
+        uses: olafurpg/setup-scala@v10
+        with:
+          java-version: adopt@1.11.0-9
+
+      - name: Cache Coursier cache
+        uses: coursier/cache-action@v5
+
+      - name: Start docker
+        run: ./scripts/launch-oracle.sh
+
+      - name: Run tests with Scala 2.13 and AdoptOpenJDK 11
+        run: sbt "++2.13.4 It/testOnly akka.persistence.jdbc.integration.Oracle*" -J-XX:+UnlockExperimentalVMOptions -J-XX:+UseJVMCICompiler
+
+      - name: Print logs on failure
+        if: ${{ failure() }}
+        run: find . -name "*.log" -exec ./scripts/cat-log.sh {} \;   
+
+  it-test-sqlserver-java11-scala213:
+    name: SQL Server integration tests with Scala 2.13 and AdoptOpenJDK 11
+    runs-on: ubuntu-18.04
+    needs: check
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Checkout GitHub merge
+        if: github.event.pull_request
+        run: |-
+          git fetch origin pull/${{ github.event.pull_request.number }}/merge:scratch
+          git checkout scratch
+          
+      - name: Setup Scala with JDK 11
+        uses: olafurpg/setup-scala@v10
+        with:
+          java-version: adopt@1.11.0-9
+
+      - name: Cache Coursier cache
+        uses: coursier/cache-action@v5
+
+      - name: Start docker
+        run: ./scripts/launch-sqlserver.sh
+
+      - name: Run tests with Scala 2.13 and AdoptOpenJDK 11
+        run: sbt "++2.13.4 It/testOnly akka.persistence.jdbc.integration.SqlServer*" -J-XX:+UnlockExperimentalVMOptions -J-XX:+UseJVMCICompiler
+
+      - name: Print logs on failure
+        if: ${{ failure() }}
+        run: find . -name "*.log" -exec ./scripts/cat-log.sh {} \;                   
