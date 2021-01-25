@@ -1,0 +1,40 @@
+name: it-test-sqlserver-java11-scala213-old-dao
+
+on:
+  pull_request:
+  push:
+    branches: [ main ]
+
+jobs:
+  it-test-sqlserver-java11-scala213-old-dao:
+    name: SQL Server integration tests with AdoptOpenJDK 11 and Scala 2.13
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Checkout GitHub merge
+        if: github.event.pull_request
+        run: |-
+          git fetch origin pull/${{ github.event.pull_request.number }}/merge:scratch
+          git checkout scratch
+          
+      - name: Setup Scala with JDK
+        uses: olafurpg/setup-scala@v10
+        with:
+          java-version: adopt@1.11.0-9
+
+      - name: Cache Coursier cache
+        uses: coursier/cache-action@v5
+
+      - name: Start docker
+        run: ./scripts/launch-sqlserver.sh
+
+      - name: Run tests
+        run: sbt "++2.13.4 It/testOnly akka.persistence.jdbc.integration.SqlServer*" -J-XX:+UnlockExperimentalVMOptions -J-XX:+UseJVMCICompiler -Djdbc-journal.dao=akka.persistence.jdbc.journal.dao.legacy.ByteArrayJournalDao -Djdbc-snapshot-store.dao=akka.persistence.jdbc.snapshot.dao.legacy.ByteArraySnapshotDao -Djdbc-read-journal.dao=akka.persistence.jdbc.query.dao.legacy.ByteArrayReadJournalDao
+
+      - name: Print logs on failure
+        if: ${{ failure() }}
+        run: find . -name "*.log" -exec ./scripts/cat-log.sh {} \;    
