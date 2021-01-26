@@ -1,4 +1,4 @@
-name: test-java8-scala212
+name: Test with AdoptOpenJDK 8 and Scala 2.12
 
 on:
   pull_request:
@@ -6,8 +6,7 @@ on:
     branches: [ main ]
 
 jobs:
-  test-java8-scala212:
-    name: Build and Test with AdoptOpenJDK 8 and Scala 2.12
+  test:
     runs-on: ubuntu-18.04
     steps:
       - name: Checkout

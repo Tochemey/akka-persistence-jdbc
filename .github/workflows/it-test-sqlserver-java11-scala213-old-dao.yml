@@ -1,4 +1,4 @@
-name: it-test-sqlserver-java11-scala213-old-dao
+name: SQL Server IT (old DAO) with AdoptOpenJDK 11 and Scala 2.13
 
 on:
   pull_request:
@@ -6,8 +6,7 @@ on:
     branches: [ main ]
 
 jobs:
-  it-test-sqlserver-java11-scala213-old-dao:
-    name: SQL Server integration tests with AdoptOpenJDK 11 and Scala 2.13
+  it-test:
     runs-on: ubuntu-18.04
     steps:
       - name: Checkout
